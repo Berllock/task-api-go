@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 )
@@ -29,25 +30,64 @@ func saveTasks(tasks []Task) error {
 	return os.WriteFile("tasks.json", data, 0644)
 }
 
-//func loadTasks([]Task, error)  {
-//	data, err := os.ReadFile("tasks.json")
-//	if err != nil {
-//		if os.IsNotExist(err) {
-//			return []Task{}, nil
-//		}
-//		return nil, err
-//	}
-//
-//	var tasks []Task
-//
-//	err = json.Unmarshal(data, &tasks)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return tasks, nil
-//
-//}
+func loadTasks() ([]Task, error) {
+	data, err := os.ReadFile("tasks.json")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []Task{}, nil
+		}
+		return nil, err
+	}
+
+	var tasks []Task
+
+	err = json.Unmarshal(data, &tasks)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
+
+}
 
 func main() {
+	args := os.Args
+
+	if len(args) < 2 {
+		fmt.Println("Comandos disponíveis: add, list, update, delete")
+		return
+	}
+
+	switch args[1] {
+	case "add":
+		if len(args) < 3 {
+			fmt.Println("Erro: Forneça uma descrição para a tarefa.")
+			return
+		}
+		description := args[2]
+
+		task, err := loadTasks()
+		if err != nil {
+			fmt.Println("Erro ao carregar tarefas:", err)
+			return
+		}
+
+		novaTask := Task{
+			ID:          len(task) + 1,
+			Description: description,
+			Status:      StatusTodo,
+			CreatedAt:   time.Now(),
+			UpdateAt:    time.Now(),
+		}
+
+		task = append(task, novaTask)
+
+		err = saveTasks(task)
+		if err != nil {
+			fmt.Println("Erro ao salvar tarefa:", err)
+			return
+		}
+
+		fmt.Printf("Tarefa adicionada com sucesso! (ID: %d)\n", novaTask.ID)
+	}
 
 }
