@@ -88,6 +88,19 @@ func main() {
 		}
 
 		fmt.Printf("Tarefa adicionada com sucesso! (ID: %d)\n", novaTask.ID)
+
+	case "list":
+
+		tasks, err := loadTasks()
+
+		if err != nil {
+			fmt.Println("Erro ao carregar tarefas:", err)
+			return
+		}
+
+		for _, task := range tasks {
+			fmt.Println(task)
+		}
 	}
 
 }
