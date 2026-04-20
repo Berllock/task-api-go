@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -101,6 +102,50 @@ func main() {
 		for _, task := range tasks {
 			fmt.Println(task)
 		}
+
+	case "update":
+		if len(args) < 4 {
+			fmt.Println("Erro: Forneça o ID e a descrição para a atualização da terefa")
+			return
+		}
+
+		id, err := strconv.Atoi(args[2])
+		if err != nil {
+			fmt.Println("Erro: ID inválido. Use um numero")
+			return
+		}
+
+		newDescription := args[3]
+
+		tasks, err := loadTasks()
+		if err != nil {
+			fmt.Println("Erro ao carregar tarefas:", err)
+			return
+		}
+
+		findTask := false
+		for i := range tasks {
+			if tasks[i].ID == id {
+				tasks[i].Description = newDescription
+				tasks[i].UpdateAt = time.Now()
+				findTask = true
+				break
+			}
+		}
+
+		if !findTask {
+			fmt.Printf("Erro: Tarefa com ID %d não encontrada. \n", id)
+			return
+		}
+
+		err = saveTasks(tasks)
+		if err != nil {
+			fmt.Println("Erro ao salvar tarefa:", err)
+			return
+		}
+
+		fmt.Printf("Tarefa atualizada com sucesso! (ID: %d)\n", id)
+
 	}
 
 }
